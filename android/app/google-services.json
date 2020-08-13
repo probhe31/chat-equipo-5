@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "872628702843",
+    "firebase_url": "https://unms-chat-project.firebaseio.com",
+    "project_id": "unms-chat-project",
+    "storage_bucket": "unms-chat-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:872628702843:android:1517aeff2aad317e14dcde",
+        "android_client_info": {
+          "package_name": "pe.edu.unmsm.grupo1Chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "872628702843-bjjq6rqoh3mt5u61j1m7o9ijqh5er0q5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCK4BakZZrlFx-ZThruAPNIQ4LJ69Hq83s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "872628702843-bjjq6rqoh3mt5u61j1m7o9ijqh5er0q5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
