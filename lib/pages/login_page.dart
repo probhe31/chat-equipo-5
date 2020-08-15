@@ -16,17 +16,12 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _auth = FirebaseAuth.instance;
   GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
-
-  bool _isLoggedIn = false;
   bool showSpinner = false;
   String email;
   String password;
 
-  //GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
-
   _googleLogin() async {
     try {
-      //await _googleSignIn.signIn();
       final GoogleSignInAccount googleUser =
           await _googleSignIn.signIn().catchError((onError) {
         print("Error login with google");
@@ -40,11 +35,9 @@ class _LoginPageState extends State<LoginPage> {
         idToken: googleAuth.idToken,
       );
 
-      final FirebaseUser user =
-          (await _auth.signInWithCredential(credential)).user;
+      await _auth.signInWithCredential(credential);
 
       setState(() {
-        _isLoggedIn = true;
         Navigator.pushNamed(context, ChatPage.id);
       });
     } catch (err) {
@@ -59,9 +52,6 @@ class _LoginPageState extends State<LoginPage> {
 
   _googleLogout() {
     _googleSignIn.signOut();
-    setState(() {
-      _isLoggedIn = false;
-    });
   }
 
   @override

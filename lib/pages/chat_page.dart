@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_flash_chat/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 final _firestore = Firestore.instance;
 FirebaseUser loggedInUser;
@@ -37,24 +40,31 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  /*
-  void getMessages() async {
-    final messages = await _firestore.collection('messages').getDocuments();
-    for (var message in messages.documents) {
-      print(message);
-    }
-  }
-  */
+  String _dataUrl = "http://worldtimeapi.org/api/ip";
+  static const HTTP_OK = 200;
+  String _jsonResonse = "";
+  String now = "";
 
-  /*
-  void messagesStream() async {
-    await for (var snapshot in _firestore.collection('messages').snapshots()) {
-      for (var message in snapshot.documents) {
-        print(message);
-    }
+  Future<void> fetchDate() async {
+    var response = await http.get(_dataUrl);
+    if (response.statusCode == HTTP_OK) {
+      _jsonResonse = response.body;
+      dynamic jsonObject = json.decode(_jsonResonse);
+      messageTextController.clear();
+      var now = new DateTime.fromMillisecondsSinceEpoch(
+          jsonObject["unixtime"] * 1000);
+
+      String time = (now.hour.toString() + ":" + now.minute.toString());
+
+      _firestore.collection('messages').add({
+        'text': messageText,
+        'sender': loggedInUser.email,
+        'time': time,
+        'date': now.toString(),
+        'timestamp': now.millisecondsSinceEpoch
+      });
     }
   }
-  */
 
   @override
   Widget build(BuildContext context) {
@@ -94,19 +104,7 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                   FlatButton(
                     onPressed: () {
-                      messageTextController.clear();
-                      //var now = new DateTime.now().add(new Duration(days: 4));
-                      var now = new DateTime.now();
-                      String time =
-                          (now.hour.toString() + ":" + now.minute.toString());
-
-                      _firestore.collection('messages').add({
-                        'text': messageText,
-                        'sender': loggedInUser.email,
-                        'time': time,
-                        'date': now.toString(),
-                        'timestamp': now.millisecondsSinceEpoch
-                      });
+                      fetchDate();
                     },
                     child: Text(
                       'Send',
@@ -127,7 +125,6 @@ class MessagesStream extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-        //stream: _firestore.collection('messages').snapshots(),
         stream: _firestore
             .collection('messages')
             .orderBy('timestamp', descending: true)
@@ -143,18 +140,8 @@ class MessagesStream extends StatelessWidget {
           List<MessageBubble> messageBubbles = [];
 
           if (messages.length > 0) {
-            /*CollectionReference collectionsReference =
-              Firestore.instance.collection("messages");
-
-          Query collectionReference =
-              Firestore.instance.collection("messages").orderBy('date').snapshots().toList();*/
-            int index = 0;
-            DateTime first;
             DateTime last;
             final DateFormat formatter = DateFormat('yMd');
-
-            if (messages != null)
-              first = DateTime.tryParse(messages.last.data['date']);
 
             if (messages != null)
               last = DateTime.tryParse(messages.first.data['date']);
@@ -169,8 +156,8 @@ class MessagesStream extends StatelessWidget {
 
               if (messagedatetime != null) {
                 final currentUser = loggedInUser.email;
-
-                if (messagedatetime.difference(last).inDays <= -1) {
+                if (messagedatetime.day < last.day ||
+                    messagedatetime.month > last.month) {
                   final messagDate2 =
                       DateBubble(date: formatter.format(last).toString());
                   messageBubbles.add(messagDate2);
@@ -186,11 +173,7 @@ class MessagesStream extends StatelessWidget {
                     date: messageDate,
                     timestamp: messageTimeStamp);
                 messageBubbles.add(messageBubble);
-
-                //print("index " + index.toString());
-
               }
-              index++;
             }
 
             if (last != null) {
@@ -222,7 +205,6 @@ class DateBubble extends MessageBubble {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Material(
-            //borderRadius: BorderRadius.circular(30.0),
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(30.0),
               topRight: Radius.circular(30.0),
@@ -279,7 +261,6 @@ class MessageBubble extends StatelessWidget {
             ),
           ),
           Material(
-            //borderRadius: BorderRadius.circular(30.0),
             borderRadius: isMe
                 ? BorderRadius.only(
                     topLeft: Radius.circular(30.0),

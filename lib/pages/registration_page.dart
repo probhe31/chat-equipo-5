@@ -22,7 +22,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   bool showSpinner = false;
   String email;
   String password;
-  bool _isLoggedIn = false;
 
   _googleLogin() async {
     try {
@@ -45,7 +44,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
       createRecord(user.email);
 
       setState(() {
-        _isLoggedIn = true;
         Navigator.pushNamed(context, ChatPage.id);
       });
     } catch (err) {
