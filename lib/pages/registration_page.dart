@@ -5,6 +5,8 @@ import 'package:flutter_flash_chat/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 
 final databaseReference = Firestore.instance;
 
@@ -16,9 +18,37 @@ class RegistrationPage extends StatefulWidget {
 
 class _RegistrationPageState extends State<RegistrationPage> {
   final _auth = FirebaseAuth.instance;
+  GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
   bool showSpinner = false;
   String email;
   String password;
+  bool _isLoggedIn = false;
+
+  _googleLogin() async {
+    try {
+      //await _googleSignIn.signIn();
+      final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.getCredential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final FirebaseUser user =
+          (await _auth.signInWithCredential(credential)).user;
+
+      createRecord(user.email);
+
+      setState(() {
+        _isLoggedIn = true;
+        Navigator.pushNamed(context, ChatPage.id);
+      });
+    } catch (err) {
+      print(err);
+    }
+  }
 
   void createRecord(String email) async {
     final snapShot =
@@ -150,6 +180,31 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   }
                 },
               ),
+              Row(children: <Widget>[
+                Expanded(
+                  child: new Container(
+                      margin: const EdgeInsets.only(left: 10.0, right: 15.0),
+                      child: Divider(
+                        color: Colors.black,
+                        height: 50,
+                      )),
+                ),
+                Text("OR"),
+                Expanded(
+                  child: new Container(
+                      margin: const EdgeInsets.only(left: 15.0, right: 10.0),
+                      child: Divider(
+                        color: Colors.black,
+                        height: 50,
+                      )),
+                ),
+              ]),
+              GoogleSignInButton(
+                onPressed: () {
+                  _googleLogin();
+                },
+                darkMode: true, // default: false
+              )
             ],
           ),
         ),

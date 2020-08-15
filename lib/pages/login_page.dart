@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_flash_chat/components/rounded_button.dart';
 import 'package:flutter_flash_chat/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'chat_page.dart';
-
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 
 class LoginPage extends StatefulWidget {
@@ -72,29 +71,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body:
-          /*_isLoggedIn
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Image.network(
-                    _googleSignIn.currentUser.photoUrl,
-                    height: 50.0,
-                    width: 50.0,
-                  ),
-                  Text(_googleSignIn.currentUser.displayName),
-                  OutlineButton(
-                    child: Text("Logout"),
-                    onPressed: () {
-                      _googleLogout();
-                    },
-                  )
-                ],
-              ),
-            )
-          : */
-          ModalProgressHUD(
+      body: ModalProgressHUD(
         inAsyncCall: showSpinner,
         child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.0),

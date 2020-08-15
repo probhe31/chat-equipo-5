@@ -95,7 +95,8 @@ class _ChatPageState extends State<ChatPage> {
                   FlatButton(
                     onPressed: () {
                       messageTextController.clear();
-                      var now = new DateTime.now().add(new Duration(days: 4));
+                      //var now = new DateTime.now().add(new Duration(days: 4));
+                      var now = new DateTime.now();
                       String time =
                           (now.hour.toString() + ":" + now.minute.toString());
 
@@ -141,59 +142,62 @@ class MessagesStream extends StatelessWidget {
           final messages = snapshot.data.documents;
           List<MessageBubble> messageBubbles = [];
 
-          /*CollectionReference collectionsReference =
+          if (messages.length > 0) {
+            /*CollectionReference collectionsReference =
               Firestore.instance.collection("messages");
 
           Query collectionReference =
               Firestore.instance.collection("messages").orderBy('date').snapshots().toList();*/
-          int index = 0;
-          DateTime first;
-          DateTime last;
-          final DateFormat formatter = DateFormat('yMd');
-          first = DateTime.tryParse(messages.last.data['date']);
-          last = DateTime.tryParse(messages.first.data['date']);
+            int index = 0;
+            DateTime first;
+            DateTime last;
+            final DateFormat formatter = DateFormat('yMd');
 
-          print("first " + first.toString());
-          print("last " + last.toString());
+            if (messages != null)
+              first = DateTime.tryParse(messages.last.data['date']);
 
-          for (var message in messages) {
-            final messageText = message.data['text'];
-            final messageSender = message.data['sender'];
-            final messageTime = message.data['time'];
-            final messageDate = message.data['date'];
-            final messageTimeStamp = message.data['timestamp'];
-            var messagedatetime = DateTime.tryParse(messageDate);
+            if (messages != null)
+              last = DateTime.tryParse(messages.first.data['date']);
 
-            if (messagedatetime != null) {
-              final currentUser = loggedInUser.email;
+            for (var message in messages) {
+              final messageText = message.data['text'];
+              final messageSender = message.data['sender'];
+              final messageTime = message.data['time'];
+              final messageDate = message.data['date'];
+              final messageTimeStamp = message.data['timestamp'];
+              var messagedatetime = DateTime.tryParse(messageDate);
 
-              if (messagedatetime.difference(last).inDays <= -1) {
-                final messagDate2 =
-                    DateBubble(date: formatter.format(last).toString());
-                messageBubbles.add(messagDate2);
+              if (messagedatetime != null) {
+                final currentUser = loggedInUser.email;
 
-                last = messagedatetime;
+                if (messagedatetime.difference(last).inDays <= -1) {
+                  final messagDate2 =
+                      DateBubble(date: formatter.format(last).toString());
+                  messageBubbles.add(messagDate2);
+
+                  last = messagedatetime;
+                }
+
+                final messageBubble = MessageBubble(
+                    sender: messageSender,
+                    text: messageText,
+                    isMe: currentUser == messageSender,
+                    time: messageTime,
+                    date: messageDate,
+                    timestamp: messageTimeStamp);
+                messageBubbles.add(messageBubble);
+
+                //print("index " + index.toString());
+
               }
-
-              final messageBubble = MessageBubble(
-                  sender: messageSender,
-                  text: messageText,
-                  isMe: currentUser == messageSender,
-                  time: messageTime,
-                  date: messageDate,
-                  timestamp: messageTimeStamp);
-              messageBubbles.add(messageBubble);
-
-              //print("index " + index.toString());
-
+              index++;
             }
-            index++;
-          }
 
-          if (last != null) {
-            final messagDate1 =
-                DateBubble(date: formatter.format(last).toString());
-            messageBubbles.add(messagDate1);
+            if (last != null) {
+              final messagDate1 =
+                  DateBubble(date: formatter.format(last).toString());
+              messageBubbles.add(messagDate1);
+            }
           }
 
           return Expanded(
