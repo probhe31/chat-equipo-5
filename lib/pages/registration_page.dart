@@ -27,7 +27,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
   _googleLogin() async {
     try {
       //await _googleSignIn.signIn();
-      final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAccount googleUser =
+          await _googleSignIn.signIn().catchError((onError) {
+        print("Error login with google");
+      });
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
